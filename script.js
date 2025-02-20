@@ -78,6 +78,32 @@ const translations = {
 let currentLanguage = 'en';
 let bedCount = 1;
 
+function updateTranslations() {
+  console.log('Updating translations for language:', currentLanguage);
+  try {
+    document.querySelectorAll('[data-translate]').forEach(element => {
+      const key = element.getAttribute('data-translate');
+      console.log(`Translating ${key} to:`, translations[currentLanguage][key]);
+      element.textContent = translations[currentLanguage][key] || element.textContent;
+      if (key === 'dimensions') {
+        const unit = document.getElementById('unit').value;
+        element.innerHTML = `${translations[currentLanguage][key]} (<span class="unit-label">${unit}</span>)`;
+      }
+    });
+  } catch (error) {
+    console.error('Error in updateTranslations:', error);
+  }
+}
+
+function changeLanguage() {
+  console.log('Language change triggered');
+  currentLanguage = document.getElementById('language').value;
+  console.log('New language set to:', currentLanguage);
+  updateTranslations();
+  updateUnitLabels();
+  populateCropDropdowns();
+}
+
 function populateCropDropdowns() {
   console.log('Starting populateCropDropdowns...');
   try {
@@ -87,7 +113,7 @@ function populateCropDropdowns() {
     }
     const crops = Object.keys(plantData).sort();
     console.log('Crop names extracted (sorted):', crops);
-    const defaultOption = '<option value="">Select a crop</option>';
+    const defaultOption = `<option value="">${translations[currentLanguage].crop}</option>`;
     const options = defaultOption + crops.map(crop => `<option value="${crop}">${crop}</option>`).join('');
     console.log('Generated options HTML:', options);
     const dropdowns = document.querySelectorAll('.crop-select');
@@ -114,6 +140,7 @@ function updateUnitLabels() {
     labels.forEach(label => {
       label.textContent = unit;
     });
+    updateTranslations(); // Ensure dimensions label updates
   } catch (error) {
     console.error('Error in updateUnitLabels:', error);
   }
@@ -132,12 +159,12 @@ function addBed() {
     const newBed = document.createElement('div');
     newBed.className = 'bed';
     newBed.innerHTML = `
-      <label>Bed Name:</label><br>
+      <label data-translate="bedName">${translations[currentLanguage].bedName}</label><br>
       <input type="text" name="bedName" placeholder="e.g., Backyard Bed ${bedCount}" required><br>
-      <label>Dimensions (<span class="unit-label">${unit}</span>):</label><br>
+      <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">${unit}</span>):</label><br>
       <input type="number" name="length" placeholder="Length" required> x 
       <input type="number" name="width" placeholder="Width" required><br>
-      <label>Crop:</label><br>
+      <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
       <select name="crop" class="crop-select"></select><br>
     `;
     console.log('New bed HTML created:', newBed);
@@ -154,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     updateUnitLabels();
     populateCropDropdowns();
+    updateTranslations();
     const addBedButton = document.getElementById('addBedButton');
     if (addBedButton) {
       console.log('Add Bed button found, attaching listener');
@@ -163,6 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     } else {
       console.error('Error: Add Bed button not found! Check if id="addBedButton" is in HTML.');
+    }
+    const languageSelect = document.getElementById('language');
+    if (languageSelect) {
+      console.log('Language select found, attaching listener');
+      languageSelect.addEventListener('change', changeLanguage);
+    } else {
+      console.error('Error: Language select not found!');
     }
   } catch (error) {
     console.error('Error during initialization:', error);
@@ -184,8 +219,8 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       'm': 10.7639
     };
 
-    const sqFtToInches = 144; // 1 sq ft = 144 sq in
-    const sqFtToCm = 929.03;  // 1 sq ft = 929.03 sq cm
+    const sqFtToInches = 144;
+    const sqFtToCm = 929.03;
 
     const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
       const name = bed.querySelector('input[name="bedName"]').value;
@@ -214,13 +249,12 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const plantsWithBuffer = data.startIndoors ? Math.ceil(plantsPerBed * seedlingBuffer) : plantsPerBed;
         const shift = zoneShift[zone];
 
-        // Calculate spacing in inches or centimeters based on unit
         const isImperial = (unit === 'ft' || unit === 'in');
         const spacingUnit = isImperial ? 'in' : 'cm';
         const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
-        const baseSpacing = Math.sqrt(data.spacing); // Side length in ft
-        const plantSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 12 / 12); // Between plants
-        const rowSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 18 / 12);  // Between rows
+        const baseSpacing = Math.sqrt(data.spacing);
+        const plantSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 12 / 12);
+        const rowSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 18 / 12);
         const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
 
         const adjustWeeks = (taskData) => {
@@ -235,18 +269,18 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         };
 
         if (data.startIndoors) 
-          tasks.push(`${bed.id} - Start ${plantsWithBuffer} ${bed.crop} indoors: ${adjustWeeks(data.startIndoors)}`);
+          tasks.push(`${bed.id} - ${translations[currentLanguage].start} ${plantsWithBuffer} ${bed.crop} indoors: ${adjustWeeks(data.startIndoors)}`);
         if (data.transplant) 
-          tasks.push(`${bed.id} - Transplant ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
+          tasks.push(`${bed.id} - ${translations[currentLanguage].transplant} ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
         if (data.sow) 
-          tasks.push(`${bed.id} - Sow ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.sow)}`);
+          tasks.push(`${bed.id} - ${translations[currentLanguage].sow} ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.sow)}`);
         if (data.harvest) 
-          tasks.push(`${bed.id} - Harvest ${bed.crop}: ${adjustWeeks(data.harvest)}`);
+          tasks.push(`${bed.id} - ${translations[currentLanguage].harvest} ${bed.crop}: ${adjustWeeks(data.harvest)}`);
       }
     });
 
     console.log('Generated tasks:', tasks);
-    document.getElementById('taskList').innerHTML = '<h2>Tasks:</h2><ul>' + 
+    document.getElementById('taskList').innerHTML = `<h2>${translations[currentLanguage].tasks}</h2><ul>` + 
       tasks.map(task => `<li>${task}</li>`).join('') + '</ul>';
 
     generateICS(tasks, zone);
@@ -292,7 +326,7 @@ function generateICS(tasks, zone) {
     link.href = url;
     link.download = 'garden_calendar.ics';
     link.style.display = 'block';
-    link.textContent = 'Download Your Garden Calendar';
+    link.textContent = translations[currentLanguage].downloadCalendar;
     console.log('Download link set:', link.href);
   } catch (error) {
     console.error('Error in generateICS:', error);
