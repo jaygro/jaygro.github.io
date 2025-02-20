@@ -108,26 +108,15 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       'm': 10.7639
     };
 
-    const sqFtToUnit = {
-      'ft': 1,
-      'in': 144,
-      'cm': 929.03,
-      'm': 0.092903
-    };
-
-    const unitLabel = {
-      'ft': 'ft',
-      'in': 'in',
-      'cm': 'cm',
-      'm': 'm'
-    };
+    const sqFtToInches = 144; // 1 sq ft = 144 sq in
+    const sqFtToCm = 929.03;  // 1 sq ft = 929.03 sq cm
 
     const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
       const name = bed.querySelector('input[name="bedName"]').value;
       const length = parseFloat(bed.querySelector('input[name="length"]').value);
       const width = parseFloat(bed.querySelector('input[name="width"]').value);
       const area = (length * width) * unitToSqFt[unit];
-      const crop = bed.querySelector('select[name="crop"]').value; // Single crop
+      const crop = bed.querySelector('select[name="crop"]').value;
       console.log(`Bed ${index + 1}:`, { name, length, width, area, crop });
       return { id: name || `Bed ${index + 1}`, length, width, area, crop: crop || null };
     });
@@ -143,17 +132,20 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
     let tasks = [];
     beds.forEach(bed => {
-      if (bed.crop && plantData[bed.crop]) { // Check for a selected crop
+      if (bed.crop && plantData[bed.crop]) {
         const data = plantData[bed.crop];
         const plantsPerBed = Math.floor(bed.area / data.spacing);
         const plantsWithBuffer = data.startIndoors ? Math.ceil(plantsPerBed * seedlingBuffer) : plantsPerBed;
         const shift = zoneShift[zone];
 
-        const spacingInUnit = (data.spacing * sqFtToUnit[unit]).toFixed(2);
-        const baseSpacing = Math.sqrt(data.spacing);
-        const plantSpacing = (baseSpacing * 12 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-        const rowSpacing = (baseSpacing * 18 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-        const spacingInfo = `(${spacingInUnit} sq ${unitLabel[unit]}, ${plantSpacing} ${unitLabel[unit]} between plants, ${rowSpacing} ${unitLabel[unit]} between rows)`;
+        // Calculate spacing in inches or centimeters based on unit
+        const isImperial = (unit === 'ft' || unit === 'in');
+        const spacingUnit = isImperial ? 'in' : 'cm';
+        const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
+        const baseSpacing = Math.sqrt(data.spacing); // Side length in ft
+        const plantSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 12 / 12); // Between plants
+        const rowSpacing = Math.round(baseSpacing * Math.sqrt(conversionFactor) * 18 / 12);  // Between rows
+        const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
 
         const adjustWeeks = (taskData) => {
           let { week, month } = taskData;
@@ -167,13 +159,13 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         };
 
         if (data.startIndoors) 
-          tasks.push(`${bed.id} - Start ${plantsWithBuffer} ${bed.crop} indoors ${spacingInfo}: ${adjustWeeks(data.startIndoors)}`);
+          tasks.push(`${bed.id} - Start ${plantsWithBuffer} ${bed.crop} indoors: ${adjustWeeks(data.startIndoors)}`);
         if (data.transplant) 
-          tasks.push(`${bed.id} - Transplant ${plantsPerBed} ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
+          tasks.push(`${bed.id} - Transplant ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
         if (data.sow) 
-          tasks.push(`${bed.id} - Sow ${plantsPerBed} ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.sow)}`);
+          tasks.push(`${bed.id} - Sow ${plantsPerBed} ${bed.crop}, ${spacingInfo}: ${adjustWeeks(data.sow)}`);
         if (data.harvest) 
-          tasks.push(`${bed.id} - Harvest ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.harvest)}`);
+          tasks.push(`${bed.id} - Harvest ${bed.crop}: ${adjustWeeks(data.harvest)}`);
       }
     });
 
@@ -199,8 +191,9 @@ function generateICS(tasks, zone) {
 
     const events = tasks.map((task, i) => {
       const [fullDescription, timing] = task.split(': ');
-      const [mainAction, spacingDetails] = fullDescription.split(' (');
-      const descriptionWithSpacing = spacingDetails ? ` (${spacingDetails}` : '';
+      const hasSpacing = fullDescription.includes('Row Spacing');
+      const [mainAction, spacingDetails] = hasSpacing ? fullDescription.split(', ') : [fullDescription, ''];
+      const descriptionWithSpacing = spacingDetails ? `${spacingDetails}` : '';
       const [weekText, month] = timing.split(' of ');
       const weekNum = parseInt(weekText.split(' ')[1]);
       const monthNum = monthToNum[month];
@@ -208,7 +201,7 @@ function generateICS(tasks, zone) {
       const day = String((weekNum - 1) * 7 + 1).padStart(2, '0');
       const eventDate = `${year}${monthNum}${day}`;
       console.log(`Event ${i + 1}:`, { mainAction, descriptionWithSpacing, eventDate });
-      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${mainAction}\r\nDESCRIPTION:${descriptionWithSpacing}\r\nDTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
+      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${mainAction}\r\n${descriptionWithSpacing ? `DESCRIPTION:${descriptionWithSpacing}\r\n` : ''}DTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
     });
 
     const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//xAI//GardenPlanner//EN\r\nCALSCALE:GREGORIAN\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`;
