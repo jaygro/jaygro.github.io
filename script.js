@@ -9,9 +9,9 @@ function populateCropDropdowns() {
     if (!plantData) {
       throw new Error('plantData is not loaded!');
     }
-    const crops = Object.keys(plantData).sort(); // Sort alphabetically
+    const crops = Object.keys(plantData).sort();
     console.log('Crop names extracted (sorted):', crops);
-    const defaultOption = '<option value="">Select a crop (optional)</option>';
+    const defaultOption = '<option value="">Select a crop</option>';
     const options = defaultOption + crops.map(crop => `<option value="${crop}">${crop}</option>`).join('');
     console.log('Generated options HTML:', options);
     const dropdowns = document.querySelectorAll('.crop-select');
@@ -61,12 +61,8 @@ function addBed() {
       <label>Dimensions (<span class="unit-label">${unit}</span>):</label><br>
       <input type="number" name="length" placeholder="Length" required> x 
       <input type="number" name="width" placeholder="Width" required><br>
-      <label>Crop 1:</label><br>
-      <select name="crop1" class="crop-select"></select><br>
-      <label>Crop 2:</label><br>
-      <select name="crop2" class="crop-select"></select><br>
-      <label>Crop 3:</label><br>
-      <select name="crop3" class="crop-select"></select><br>
+      <label>Crop:</label><br>
+      <select name="crop" class="crop-select"></select><br>
     `;
     console.log('New bed HTML created:', newBed);
     container.appendChild(newBed);
@@ -86,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addBedButton) {
       console.log('Add Bed button found, attaching listener');
       addBedButton.addEventListener('click', () => {
-        console.log('Button clicked!'); // Confirm click
+        console.log('Button clicked!');
         addBed();
       });
     } else {
@@ -131,13 +127,9 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       const length = parseFloat(bed.querySelector('input[name="length"]').value);
       const width = parseFloat(bed.querySelector('input[name="width"]').value);
       const area = (length * width) * unitToSqFt[unit];
-      const crops = [
-        bed.querySelector('select[name="crop1"]').value,
-        bed.querySelector('select[name="crop2"]').value,
-        bed.querySelector('select[name="crop3"]').value
-      ].filter(crop => crop);
-      console.log(`Bed ${index + 1}:`, { name, length, width, area, crops });
-      return { id: name || `Bed ${index + 1}`, length, width, area, crops };
+      const crop = bed.querySelector('select[name="crop"]').value; // Single crop
+      console.log(`Bed ${index + 1}:`, { name, length, width, area, crop });
+      return { id: name || `Bed ${index + 1}`, length, width, area, crop: crop || null };
     });
 
     const zoneShift = {
@@ -151,40 +143,38 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
     let tasks = [];
     beds.forEach(bed => {
-      bed.crops.forEach(crop => {
-        if (plantData[crop]) {
-          const data = plantData[crop];
-          const plantsPerBed = Math.floor(bed.area / data.spacing);
-          const plantsWithBuffer = data.startIndoors ? Math.ceil(plantsPerBed * seedlingBuffer) : plantsPerBed;
-          const shift = zoneShift[zone];
+      if (bed.crop && plantData[bed.crop]) { // Check for a selected crop
+        const data = plantData[bed.crop];
+        const plantsPerBed = Math.floor(bed.area / data.spacing);
+        const plantsWithBuffer = data.startIndoors ? Math.ceil(plantsPerBed * seedlingBuffer) : plantsPerBed;
+        const shift = zoneShift[zone];
 
-          const spacingInUnit = (data.spacing * sqFtToUnit[unit]).toFixed(2);
-          const baseSpacing = Math.sqrt(data.spacing);
-          const plantSpacing = (baseSpacing * 12 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-          const rowSpacing = (baseSpacing * 18 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-          const spacingInfo = `(${spacingInUnit} sq ${unitLabel[unit]}, ${plantSpacing} ${unitLabel[unit]} between plants, ${rowSpacing} ${unitLabel[unit]} between rows)`;
+        const spacingInUnit = (data.spacing * sqFtToUnit[unit]).toFixed(2);
+        const baseSpacing = Math.sqrt(data.spacing);
+        const plantSpacing = (baseSpacing * 12 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
+        const rowSpacing = (baseSpacing * 18 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
+        const spacingInfo = `(${spacingInUnit} sq ${unitLabel[unit]}, ${plantSpacing} ${unitLabel[unit]} between plants, ${rowSpacing} ${unitLabel[unit]} between rows)`;
 
-          const adjustWeeks = (taskData) => {
-            let { week, month } = taskData;
-            let totalWeeks = (new Date(`${month} 1, ${new Date().getFullYear()}`).getMonth() * 4) + week + shift;
-            while (totalWeeks < 1) totalWeeks += 48;
-            while (totalWeeks > 48) totalWeeks -= 48;
-            const newMonthNum = Math.floor((totalWeeks - 1) / 4);
-            const newWeek = totalWeeks - (newMonthNum * 4);
-            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            return `Week ${newWeek} of ${months[newMonthNum]}`;
-          };
+        const adjustWeeks = (taskData) => {
+          let { week, month } = taskData;
+          let totalWeeks = (new Date(`${month} 1, ${new Date().getFullYear()}`).getMonth() * 4) + week + shift;
+          while (totalWeeks < 1) totalWeeks += 48;
+          while (totalWeeks > 48) totalWeeks -= 48;
+          const newMonthNum = Math.floor((totalWeeks - 1) / 4);
+          const newWeek = totalWeeks - (newMonthNum * 4);
+          const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+          return `Week ${newWeek} of ${months[newMonthNum]}`;
+        };
 
-          if (data.startIndoors) 
-            tasks.push(`${bed.id} - Start ${plantsWithBuffer} ${crop} indoors ${spacingInfo}: ${adjustWeeks(data.startIndoors)}`);
-          if (data.transplant) 
-            tasks.push(`${bed.id} - Transplant ${plantsPerBed} ${crop} ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
-          if (data.sow) 
-            tasks.push(`${bed.id} - Sow ${plantsPerBed} ${crop} ${spacingInfo}: ${adjustWeeks(data.sow)}`);
-          if (data.harvest) 
-            tasks.push(`${bed.id} - Harvest ${crop} ${spacingInfo}: ${adjustWeeks(data.harvest)}`);
-        }
-      });
+        if (data.startIndoors) 
+          tasks.push(`${bed.id} - Start ${plantsWithBuffer} ${bed.crop} indoors ${spacingInfo}: ${adjustWeeks(data.startIndoors)}`);
+        if (data.transplant) 
+          tasks.push(`${bed.id} - Transplant ${plantsPerBed} ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.transplant)}`);
+        if (data.sow) 
+          tasks.push(`${bed.id} - Sow ${plantsPerBed} ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.sow)}`);
+        if (data.harvest) 
+          tasks.push(`${bed.id} - Harvest ${bed.crop} ${spacingInfo}: ${adjustWeeks(data.harvest)}`);
+      }
     });
 
     console.log('Generated tasks:', tasks);
@@ -205,7 +195,6 @@ function generateICS(tasks, zone) {
       'July': '07', 'August': '08', 'September': '09', 'October': '10', 'November': '11', 'December': '12'
     };
 
-    // Get current UTC timestamp for DTSTAMP (still needed, but not tied to event time)
     const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
     const events = tasks.map((task, i) => {
@@ -217,7 +206,7 @@ function generateICS(tasks, zone) {
       const monthNum = monthToNum[month];
       const year = new Date().getFullYear();
       const day = String((weekNum - 1) * 7 + 1).padStart(2, '0');
-      const eventDate = `${year}${monthNum}${day}`; // No time for all-day event
+      const eventDate = `${year}${monthNum}${day}`;
       console.log(`Event ${i + 1}:`, { mainAction, descriptionWithSpacing, eventDate });
       return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${mainAction}\r\nDESCRIPTION:${descriptionWithSpacing}\r\nDTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
     });
