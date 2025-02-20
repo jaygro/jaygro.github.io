@@ -1,5 +1,81 @@
 import { plantData } from './plantData.js';
 
+const translations = {
+  en: {
+    title: "Garden Planner",
+    growingZone: "Growing Zone:",
+    selectZone: "Select Zone",
+    measurementUnit: "Measurement Unit:",
+    gardenBeds: "Garden Beds",
+    bedName: "Bed Name:",
+    dimensions: "Dimensions",
+    crop: "Crop:",
+    addBed: "Add Another Bed",
+    planGarden: "Plan My Garden",
+    tasks: "Tasks:",
+    downloadCalendar: "Download Your Garden Calendar",
+    start: "Start",
+    transplant: "Transplant",
+    sow: "Sow",
+    harvest: "Harvest"
+  },
+  es: {
+    title: "Planificador de Jardín",
+    growingZone: "Zona de Crecimiento:",
+    selectZone: "Seleccionar Zona",
+    measurementUnit: "Unidad de Medida:",
+    gardenBeds: "Camas de Jardín",
+    bedName: "Nombre de la Cama:",
+    dimensions: "Dimensiones",
+    crop: "Cultivo:",
+    addBed: "Agregar Otra Cama",
+    planGarden: "Planificar Mi Jardín",
+    tasks: "Tareas:",
+    downloadCalendar: "Descargar Tu Calendario de Jardín",
+    start: "Iniciar",
+    transplant: "Trasplantar",
+    sow: "Sembrar",
+    harvest: "Cosechar"
+  },
+  ja: {
+    title: "ガーデンプランナー",
+    growingZone: "栽培ゾーン：",
+    selectZone: "ゾーンを選択",
+    measurementUnit: "測定単位：",
+    gardenBeds: "ガーデンベッド",
+    bedName: "ベッド名：",
+    dimensions: "寸法",
+    crop: "作物：",
+    addBed: "別のベッドを追加",
+    planGarden: "私の庭を計画",
+    tasks: "タスク：",
+    downloadCalendar: "ガーデンカレンダーをダウンロード",
+    start: "開始",
+    transplant: "移植",
+    sow: "播種",
+    harvest: "収穫"
+  },
+  zh: {
+    title: "花园规划器",
+    growingZone: "生长区：",
+    selectZone: "选择区域",
+    measurementUnit: "测量单位：",
+    gardenBeds: "花园床",
+    bedName: "床名：",
+    dimensions: "尺寸",
+    crop: "作物：",
+    addBed: "添加另一个床",
+    planGarden: "规划我的花园",
+    tasks: "任务：",
+    downloadCalendar: "下载你的花园日历",
+    start: "开始",
+    transplant: "移植",
+    sow: "播种",
+    harvest: "收获"
+  }
+};
+
+let currentLanguage = 'en';
 let bedCount = 1;
 
 function populateCropDropdowns() {
