@@ -385,3 +385,52 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     document.getElementById('taskList').innerHTML = '';
   }
 });
+function generateICS(tasks) {
+  console.log('Generating ICS file...');
+  try {
+    const monthToNum = {
+      'January': '01', 'February': '02', 'March': '03', 'April': '04', 'May': '05', 'June': '06',
+      'July': '07', 'August': '08', 'September': '09', 'October': '10', 'November': '11', 'December': '12'
+    };
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const year = new Date().getFullYear();
+
+    const foldLine = (line) => {
+      if (line.length <= 75) return line;
+      const folded = [];
+      let current = line;
+      while (current.length > 75) {
+        folded.push(current.substring(0, 75));
+        current = ' ' + current.substring(75);
+      }
+      folded.push(current);
+      return folded.join('\r\n');
+    };
+
+    const events = tasks.map((task, i) => {
+      const startDay = String((task.weekNum - 1) * 7 + 1).padStart(2, '0');
+      const endDay = String((task.weekNum - 1) * 7 + 7).padStart(2, '0');
+      const startDate = `${year}${monthToNum[months[task.monthNum - 1]]}${startDay}`;
+      const endDate = `${year}${monthToNum[months[task.monthNum - 1]]}${endDay}`;
+      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${foldLine(task.summary)}\r\nDESCRIPTION:${foldLine(task.description)}\r\nDTSTART;VALUE=DATE:${startDate}\r\nDTEND;VALUE=DATE:${endDate}\r\nEND:VEVENT`;
+    });
+
+    const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//xAI//GardenPlanner//EN\r\nCALSCALE:GREGORIAN\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`;
+
+    console.log('ICS content:', icsContent);
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.getElementById('downloadLink');
+    if (!link) throw new Error('downloadLink element not found!');
+    link.href = url;
+    link.download = 'garden_calendar.ics';
+    link.style.display = 'block';
+    link.textContent = translations[currentLanguage].downloadCalendar || 'Download Calendar';
+    console.log('Download link set:', link.href);
+  } catch (error) {
+    console.error('Error in generateICS:', error);
+    alert('Failed to generate calendar: ' + error.message);
+  }
+}
