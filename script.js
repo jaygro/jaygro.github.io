@@ -16,7 +16,8 @@ const translations = {
     crop: "Crop:",
     addBed: "Add Another Bed",
     planGarden: "Plan My Garden",
-    downloadCalendar: "Download Calendar"
+    downloadCalendar: "Download Calendar",
+    tasks: "Tasks:"
   },
   es: {
     title: "Planificador de Jardín",
@@ -30,7 +31,8 @@ const translations = {
     crop: "Cultivo:",
     addBed: "Agregar Otra Cama",
     planGarden: "Planificar Mi Jardín",
-    downloadCalendar: "Descargar Calendario"
+    downloadCalendar: "Descargar Calendario",
+    tasks: "Tareas:"
   }
 };
 
@@ -160,6 +162,7 @@ const cropTranslations = {
     'artichoke': 'Alcachofa'
   }
 };
+
 function updateTranslations() {
   console.log('Updating translations for:', currentLanguage);
   document.querySelectorAll('[data-translate]').forEach(element => {
@@ -167,7 +170,7 @@ function updateTranslations() {
     element.textContent = translations[currentLanguage][key] || element.textContent;
     if (key === 'dimensions') {
       const unit = document.getElementById('unit').value;
-      element.innerHTML = `${translations[currentLanguage][key]} (<span class="unit-label">${unit}</span>)`;
+      element.innerHTML = `${translations[currentLanguage][key]} (<span class="unit-label">${unit}</span>):`;
     }
   });
 }
