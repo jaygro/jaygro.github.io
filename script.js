@@ -197,10 +197,11 @@ function updateUnitLabels() {
   try {
     const unit = document.getElementById('unit').value;
     console.log('Selected unit:', unit);
-    const labels = document.querySelectorAll('.unit-label');
-    console.log('Found unit labels:', labels.length);
-    labels.forEach(label => label.textContent = unit);
-    updateTranslations(); // Refresh dimensions labels
+    document.querySelectorAll('.unit-label').forEach(label => {
+      const parent = label.closest('label[data-translate="dimensions"]');
+      if (parent) parent.innerHTML = `${translations[currentLanguage].dimensions} (<span class="unit-label">${unit}</span>):`;
+      else label.textContent = unit;
+    });
   } catch (error) {
     console.error('Error in updateUnitLabels:', error);
   }
