@@ -8,9 +8,15 @@
   </style>
 </head>
 <body>
-  <h1>Garden Planner</h1>
+  <h1 data-translate="title">Garden Planner</h1>
   <form id="gardenForm">
-    <label>Growing Zone:</label><br>
+    <label data-translate="language">Language:</label><br>
+    <select id="language">
+      <option value="en">English</option>
+      <option value="es">Spanish</option>
+    </select><br><br>
+
+    <label data-translate="growingZone">Growing Zone:</label><br>
     <select id="zone" required>
       <option value="">Select Zone</option>
       <option value="1a">1a</option><option value="1b">1b</option>
@@ -28,7 +34,7 @@
       <option value="13a">13a</option><option value="13b">13b</option>
     </select><br><br>
 
-    <label>Measurement Unit:</label><br>
+    <label data-translate="measurementUnit">Measurement Unit:</label><br>
     <select id="unit" required onchange="updateUnitLabels()">
       <option value="ft">Feet (ft)</option>
       <option value="in">Inches (in)</option>
@@ -36,24 +42,24 @@
       <option value="m">Meters (m)</option>
     </select><br><br>
 
-    <h3>Garden Beds</h3>
+    <h3 data-translate="gardenBeds">Garden Beds</h3>
     <div id="bedsContainer">
       <div class="bed">
-        <label>Bed Name:</label><br>
+        <label data-translate="bedName">Bed Name:</label><br>
         <input type="text" name="bedName" placeholder="e.g., Front Yard" required><br>
-        <label>Dimensions (<span class="unit-label">ft</span>):</label><br>
+        <label data-translate="dimensions">Dimensions (<span class="unit-label">ft</span>):</label><br>
         <input type="number" name="length" placeholder="Length" required> x 
         <input type="number" name="width" placeholder="Width" required><br>
-        <label>Crop:</label><br>
+        <label data-translate="crop">Crop:</label><br>
         <select name="crop" class="crop-select"></select><br>
       </div>
     </div>
-    <button type="button" id="addBedButton">Add Another Bed</button><br><br>
-    <button type="submit">Plan My Garden</button>
+    <button type="button" id="addBedButton" data-translate="addBed">Add Another Bed</button><br><br>
+    <button type="submit" data-translate="planGarden">Plan My Garden</button>
   </form>
 
   <div id="taskList"></div>
-  <a id="downloadLink" style="display:none">Download Calendar</a>
+  <a id="downloadLink" style="display:none" data-translate="downloadCalendar">Download Calendar</a>
 
   <script type="module" src="script.js"></script>
 </body>
