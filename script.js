@@ -265,8 +265,8 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     console.log('Zone:', zone, 'Unit:', unit);
 
     const unitToSqFt = { 'ft': 1, 'in': 1 / 144, 'cm': 1 / 929.03, 'm': 10.7639 };
-    const sqFtToInches = 144; // For imperial conversion
-    const sqFtToCm = 929.03;  // For metric conversion
+    const sqFtToInches = 144;
+    const sqFtToCm = 929.03;
 
     const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
       const name = bed.querySelector('input[name="bedName"]').value;
@@ -299,13 +299,15 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const plantsPerBed = Math.floor(bed.area / data.spacing);
         const shift = zoneShift[zone];
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
+        // Only add "s" if cropName doesn’t already end in "s"
+        const pluralCropName = cropName.endsWith('s') ? cropName : `${cropName}s`;
 
         const isImperial = (unit === 'ft' || unit === 'in');
         const spacingUnit = isImperial ? 'inches' : 'cm';
         const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
         const baseSpacing = Math.sqrt(data.spacing);
-        const plantSpacing = Math.round(baseSpacing * 12 * Math.sqrt(conversionFactor / 144)); // Round to nearest integer
-        const rowSpacing = Math.round(baseSpacing * 18 * Math.sqrt(conversionFactor / 144));  // Round to nearest integer
+        const plantSpacing = Math.round(baseSpacing * 12 * Math.sqrt(conversionFactor / 144));
+        const rowSpacing = Math.round(baseSpacing * 18 * Math.sqrt(conversionFactor / 144));
         const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
 
         const adjustWeeks = (taskData) => {
@@ -320,19 +322,19 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
         if (data.startIndoors) {
           const { text, totalWeeks } = adjustWeeks(data.startIndoors);
-          tasks.push({ text: `${text} Start ${plantsPerBed} ${cropName}s for bed ${bed.id}`, totalWeeks });
+          tasks.push({ text: `${text} Start ${plantsPerBed} ${pluralCropName} for bed ${bed.id}`, totalWeeks });
         }
         if (data.transplant) {
           const { text, totalWeeks } = adjustWeeks(data.transplant);
-          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${cropName}s into bed ${bed.id}, ${spacingInfo}`, totalWeeks });
+          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${pluralCropName} into bed ${bed.id}, ${spacingInfo}`, totalWeeks });
         }
         if (data.sow) {
           const { text, totalWeeks } = adjustWeeks(data.sow);
-          tasks.push({ text: `${text} Sow ${plantsPerBed} ${cropName}s for bed ${bed.id}, ${spacingInfo}`, totalWeeks });
+          tasks.push({ text: `${text} Sow ${plantsPerBed} ${pluralCropName} for bed ${bed.id}, ${spacingInfo}`, totalWeeks });
         }
         if (data.harvest) {
           const { text, totalWeeks } = adjustWeeks(data.harvest);
-          tasks.push({ text: `${text} Harvest your ${cropName}s from bed ${bed.id}`, totalWeeks });
+          tasks.push({ text: `${text} Harvest your ${pluralCropName} from bed ${bed.id}`, totalWeeks });
         }
       }
     });
