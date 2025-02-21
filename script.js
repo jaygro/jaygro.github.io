@@ -216,7 +216,10 @@ function addBed() {
     const newBed = document.createElement('div');
     newBed.className = 'bed';
     newBed.innerHTML = `
-      <label data-translate="bedName">${translations[currentLanguage].bedName}</label><br>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label data-translate="bedName">${translations[currentLanguage].bedName}</label>
+        <button type="button" class="remove-bed" style="color: red; border: none; background: none; cursor: pointer; font-size: 16px;">X</button>
+      </div>
       <input type="text" name="bedName" placeholder="e.g., Backyard Bed ${bedCount}" required><br>
       <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">${unit}</span>):</label><br>
       <input type="number" name="length" placeholder="Length" required> x 
@@ -226,7 +229,7 @@ function addBed() {
     `;
     container.appendChild(newBed);
     
-    // Only populate the new bed's dropdown
+    // Populate only the new bed's dropdown
     const newDropdown = newBed.querySelector('.crop-select');
     const crops = Object.keys(plantData).sort();
     const defaultOption = `<option value="">${translations[currentLanguage].crop}</option>`;
@@ -235,13 +238,20 @@ function addBed() {
       return `<option value="${crop}">${displayName}</option>`;
     }).join('');
     newDropdown.innerHTML = options;
+
+    // Add remove functionality
+    const removeButton = newBed.querySelector('.remove-bed');
+    removeButton.addEventListener('click', () => {
+      console.log(`Removing bed: ${bedCount}`);
+      container.removeChild(newBed);
+      bedCount--; // Decrement bed count
+    });
     
     console.log('New bed added with dropdown populated');
   } catch (error) {
     console.error('Error in addBed:', error);
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded, initializing...');
   try {
