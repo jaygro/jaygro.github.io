@@ -291,6 +291,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const data = plantData[bed.crop];
         const plantsPerBed = Math.floor(bed.area / data.spacing);
         const shift = zoneShift[zone];
+        const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
 
         const adjustWeeks = (taskData) => {
           let { week, month } = taskData;
@@ -304,19 +305,19 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
         if (data.startIndoors) {
           const { text, totalWeeks } = adjustWeeks(data.startIndoors);
-          tasks.push({ text: `${bed.id} - Start ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]} indoors: ${text}`, totalWeeks });
+          tasks.push({ text: `${text} Start ${plantsPerBed} ${cropName}s for bed ${bed.id}`, totalWeeks });
         }
         if (data.transplant) {
           const { text, totalWeeks } = adjustWeeks(data.transplant);
-          tasks.push({ text: `${bed.id} - Transplant ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${cropName}s into bed ${bed.id}`, totalWeeks });
         }
         if (data.sow) {
           const { text, totalWeeks } = adjustWeeks(data.sow);
-          tasks.push({ text: `${bed.id} - Sow ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+          tasks.push({ text: `${text} Sow ${plantsPerBed} ${cropName}s for bed ${bed.id}`, totalWeeks });
         }
         if (data.harvest) {
           const { text, totalWeeks } = adjustWeeks(data.harvest);
-          tasks.push({ text: `${bed.id} - Harvest ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+          tasks.push({ text: `${text} Harvest your ${cropName}s from bed ${bed.id}`, totalWeeks });
         }
       }
     });
