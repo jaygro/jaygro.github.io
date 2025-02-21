@@ -391,6 +391,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
     console.log('Generated tasks (sorted):', tasks);
 
+    const downloadText = translations[currentLanguage].downloadCalendar || 'Download Calendar';
     const taskWindow = window.open('', '_blank', 'width=600,height=800');
     taskWindow.document.write(`
       <!DOCTYPE html>
@@ -405,7 +406,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
             ul.task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
             ul.task-checklist li label { flex: 1; color: #333; }
             ul.task-checklist li input[type="checkbox"]:checked + label { text-decoration: line-through; color: #888; }
-            a { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
+            a { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; cursor: pointer; }
             a:hover { color: #388e3c; text-decoration: underline; }
             @media print {
               body { padding: 10px; }
@@ -425,10 +426,15 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
               </li>
             `).join('')}
           </ul>
-          <a href="" id="downloadLink">${translations[currentLanguage].downloadCalendar || 'Download Calendar'}</a>
+          <a href="#" id="downloadLink">${downloadText}</a>
           <script>
             ${generateICS.toString()}
-            generateICS(${JSON.stringify(tasks)});
+            const tasks = ${JSON.stringify(tasks)};
+            const link = document.getElementById('downloadLink');
+            link.addEventListener('click', function(e) {
+              e.preventDefault();
+              generateICS(tasks);
+            });
           </script>
         </body>
       </html>
@@ -439,7 +445,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     alert(error.message);
   }
 });
-
 function generateICS(tasks) {
   console.log('Generating ICS file...');
   try {
