@@ -301,11 +301,11 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
 
         const isImperial = (unit === 'ft' || unit === 'in');
-        const spacingUnit = isImperial ? 'inches' : 'cm'; // Changed "in" to "inches"
+        const spacingUnit = isImperial ? 'inches' : 'cm';
         const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
         const baseSpacing = Math.sqrt(data.spacing);
-        const plantSpacing = (baseSpacing * 12 * Math.sqrt(conversionFactor / 144)).toFixed(1);
-        const rowSpacing = (baseSpacing * 18 * Math.sqrt(conversionFactor / 144)).toFixed(1);
+        const plantSpacing = Math.round(baseSpacing * 12 * Math.sqrt(conversionFactor / 144)); // Round to nearest integer
+        const rowSpacing = Math.round(baseSpacing * 18 * Math.sqrt(conversionFactor / 144));  // Round to nearest integer
         const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
 
         const adjustWeeks = (taskData) => {
