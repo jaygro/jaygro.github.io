@@ -282,6 +282,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       console.log(`Bed ${index + 1}:`, { name, length, width, area, crop });
       return { id: name || `Bed ${index + 1}`, length, width, area, crop: crop || null };
     });
+
     const zoneShift = {
       '1a': 8, '1b': 7, '2a': 6, '2b': 6, '3a': 5, '3b': 5, '4a': 4, '4b': 4,
       '5a': 3, '5b': 3, '6a': 2, '6b': 2, '7a': 0, '7b': 0, '8a': -1, '8b': -1,
@@ -299,6 +300,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const shift = zoneShift[zone];
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
         const pluralCropName = cropName.endsWith('s') ? cropName : `${cropName}s`;
+
         const isImperial = (unit === 'ft' || unit === 'in');
         const spacingUnit = isImperial ? 'inches' : 'cm';
         const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
@@ -306,6 +308,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const plantSpacing = Math.round(baseSpacing * 12 * Math.sqrt(conversionFactor / 144));
         const rowSpacing = Math.round(baseSpacing * 18 * Math.sqrt(conversionFactor / 144));
         const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
+
         const adjustWeeks = (taskData) => {
           let { week, month } = taskData;
           let totalWeeks = (new Date(`${month} 1, ${new Date().getFullYear()}`).getMonth() * 4) + week + shift;
@@ -366,23 +369,47 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     tasks.sort((a, b) => a.totalWeeks - b.totalWeeks);
 
     console.log('Generated tasks (sorted):', tasks);
-    document.getElementById('taskList').innerHTML = `
-      <h2 class="task-header">${translations[currentLanguage].tasks || 'Tasks:'}</h2>
-      <ul class="task-checklist">
-        ${tasks.map((task, i) => `
-          <li>
-            <input type="checkbox" id="task-${i}" name="task-${i}">
-            <label for="task-${i}">${task.text}</label>
-          </li>
-        `).join('')}
-      </ul>
-    `;
+
+    // Open new window for task list
+    const taskWindow = window.open('', '_blank', 'width=600,height=800');
+    taskWindow.document.write(`
+      <html>
+        <head>
+          <title>${translations[currentLanguage].tasks || 'Tasks'}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h2 { color: #2e7d32; border-bottom: 2px solid #4caf50; padding-bottom: 5px; }
+            ul.task-checklist { list-style-type: none; padding: 0; }
+            ul.task-checklist li { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e8f5e9; background: #f1f8e9; margin-bottom: 5px; border-radius: 4px; }
+            ul.task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
+            ul.task-checklist li label { flex: 1; color: #333; }
+            ul.task-checklist li input[type="checkbox"]:checked + label { text-decoration: line-through; color: #888; }
+            @media print {
+              body { padding: 10px; }
+              ul.task-checklist li { background: none; page-break-inside: avoid; }
+              ul.task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
+            }
+          </style>
+        </head>
+        <body>
+          <h2>${translations[currentLanguage].tasks || 'Tasks:'}</h2>
+          <ul class="task-checklist">
+            ${tasks.map((task, i) => `
+              <li>
+                <input type="checkbox" id="task-${i}" name="task-${i}">
+                <label for="task-${i}">${task.text}</label>
+              </li>
+            `).join('')}
+          </ul>
+        </body>
+      </html>
+    `);
+    taskWindow.document.close();
 
     generateICS(tasks);
   } catch (error) {
     console.error('Error in form submission:', error);
     alert(error.message);
-    document.getElementById('taskList').innerHTML = '';
   }
 });
 
