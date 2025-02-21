@@ -393,6 +393,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
     const taskWindow = window.open('', '_blank', 'width=600,height=800');
     taskWindow.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
           <title>${translations[currentLanguage].tasks || 'Tasks'}</title>
@@ -404,11 +405,11 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
             ul.task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
             ul.task-checklist li label { flex: 1; color: #333; }
             ul.task-checklist li input[type="checkbox"]:checked + label { text-decoration: line-through; color: #888; }
-            a.download-link { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
-            a.download-link:hover { color: #388e3c; text-decoration: underline; }
+            a { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
+            a:hover { color: #388e3c; text-decoration: underline; }
             @media print {
               body { padding: 10px; }
-              a.download-link { display: none; }
+              a { display: none; }
               ul.task-checklist li { background: none; page-break-inside: avoid; }
               ul.task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
             }
@@ -424,14 +425,10 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
               </li>
             `).join('')}
           </ul>
-          <a class="download-link" id="downloadLink">${translations[currentLanguage].downloadCalendar || 'Download Calendar'}</a>
+          <a href="" id="downloadLink">${translations[currentLanguage].downloadCalendar || 'Download Calendar'}</a>
           <script>
-            const icsContent = generateICS(${JSON.stringify(tasks)});
-            const blob = new Blob([icsContent], { type: 'text/calendar' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.getElementById('downloadLink');
-            link.href = url;
-            link.download = 'garden_calendar.ics';
+            ${generateICS.toString()}
+            generateICS(${JSON.stringify(tasks)});
           </script>
         </body>
       </html>
