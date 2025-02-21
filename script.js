@@ -225,7 +225,18 @@ function addBed() {
       <select name="crop" class="crop-select"></select><br>
     `;
     container.appendChild(newBed);
-    populateCropDropdowns();
+    
+    // Only populate the new bed's dropdown
+    const newDropdown = newBed.querySelector('.crop-select');
+    const crops = Object.keys(plantData).sort();
+    const defaultOption = `<option value="">${translations[currentLanguage].crop}</option>`;
+    const options = defaultOption + crops.map(crop => {
+      const displayName = cropTranslations[currentLanguage][crop] || crop;
+      return `<option value="${crop}">${displayName}</option>`;
+    }).join('');
+    newDropdown.innerHTML = options;
+    
+    console.log('New bed added with dropdown populated');
   } catch (error) {
     console.error('Error in addBed:', error);
   }
