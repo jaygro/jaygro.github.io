@@ -464,15 +464,12 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
               const blob = new Blob([icsContent], { type: 'text/calendar' });
               const url = window.URL.createObjectURL(blob);
               console.log('Blob URL created:', url);
-              const link = document.createElement('a');
+              const link = document.getElementById('downloadLink');
               link.href = url;
               link.download = 'garden_calendar.ics';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              window.URL.revokeObjectURL(url);
+              link.dispatchEvent(new Event('click'));
             }
-                     const tasks = ${JSON.stringify(tasks)};
+            const tasks = ${JSON.stringify(tasks)};
             document.getElementById('downloadLink').addEventListener('click', function(e) {
               e.preventDefault();
               generateICS(tasks);
