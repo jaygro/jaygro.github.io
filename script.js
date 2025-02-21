@@ -434,7 +434,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
                 'January': '01', 'February': '02', 'March': '03', 'April': '04', 'May': '05', 'June': '06',
                 'July': '07', 'August': '08', 'September': '09', 'October': '10', 'November': '11', 'December': '12'
               };
-              const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
               const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
               const year = new Date().getFullYear();
 
@@ -449,24 +448,29 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
                 result.push(current);
                 return result.join('\\r\\n');
               };
+
               const events = tasks.map((task, i) => {
                 const startDay = String((task.weekNum - 1) * 7 + 1).padStart(2, '0');
                 const endDay = String((task.weekNum - 1) * 7 + 7).padStart(2, '0');
                 const startDate = year + monthToNum[months[task.monthNum - 1]] + startDay;
                 const endDate = year + monthToNum[months[task.monthNum - 1]] + endDay;
-                return 'BEGIN:VEVENT\\r\\nUID:' + Date.now() + '-' + i + '@gardenplanner\\r\\nDTSTAMP:' + now + '\\r\\nSUMMARY:' + foldLine(task.summary) + '\\r\\nDESCRIPTION:' + foldLine(task.description) + '\\r\\nDTSTART;VALUE=DATE:' + startDate + '\\r\\nDTEND;VALUE=DATE:' + endDate + '\\r\\nEND:VEVENT';
+                return 'BEGIN:VEVENT\\r\\nUID:' + Date.now() + '-' + i + '@gardenplanner\\r\\nDTSTAMP:' + now + '\\r\\nSUMMARY:' + task.summary + '\\r\\nDESCRIPTION:' + foldLine(task.description) + '\\r\\nDTSTART;VALUE=DATE:' + startDate + '\\r\\nDTEND;VALUE=DATE:' + endDate + '\\r\\nEND:VEVENT';
               });
+
               const icsContent = 'BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nPRODID:-//xAI//GardenPlanner//EN\\r\\nCALSCALE:GREGORIAN\\r\\n' + events.join('\\r\\n') + '\\r\\nEND:VCALENDAR';
               console.log('ICS content generated:', icsContent);
               const blob = new Blob([icsContent], { type: 'text/calendar' });
               const url = window.URL.createObjectURL(blob);
               console.log('Blob URL created:', url);
-              const link = document.getElementById('downloadLink');
+              const link = document.createElement('a');
               link.href = url;
               link.download = 'garden_calendar.ics';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
             }
-
-            const tasks = ${JSON.stringify(tasks)};
+             const tasks = ${JSON.stringify(tasks)};
             document.getElementById('downloadLink').addEventListener('click', function(e) {
               e.preventDefault();
               generateICS(tasks);
@@ -481,7 +485,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     alert(error.message);
   }
 });
-
 
 function generateICS(tasks) {
   console.log('Generating ICS file...');
