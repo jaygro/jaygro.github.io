@@ -299,7 +299,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const plantsPerBed = Math.floor(bed.area / data.spacing);
         const shift = zoneShift[zone];
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
-        // Only add "s" if cropName doesn’t already end in "s"
         const pluralCropName = cropName.endsWith('s') ? cropName : `${cropName}s`;
 
         const isImperial = (unit === 'ft' || unit === 'in');
@@ -317,24 +316,52 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
           while (totalWeeks > 48) totalWeeks -= 48;
           const newMonthNum = Math.floor((totalWeeks - 1) / 4);
           const newWeek = totalWeeks - (newMonthNum * 4);
-          return { text: `Week ${newWeek} of ${months[newMonthNum]}`, totalWeeks };
+          return { text: `Week ${newWeek} of ${months[newMonthNum]}`, totalWeeks, monthNum: newMonthNum + 1, weekNum: newWeek };
         };
 
         if (data.startIndoors) {
-          const { text, totalWeeks } = adjustWeeks(data.startIndoors);
-          tasks.push({ text: `${text} Start ${plantsPerBed} ${pluralCropName} for bed ${bed.id}`, totalWeeks });
+          const { text, totalWeeks, monthNum, weekNum } = adjustWeeks(data.startIndoors);
+          tasks.push({ 
+            text: `${text} Start ${plantsPerBed} ${pluralCropName} for bed ${bed.id}`, 
+            totalWeeks, 
+            summary: `Start ${plantsPerBed} ${pluralCropName}`, 
+            description: `For bed ${bed.id}`, 
+            monthNum, 
+            weekNum 
+          });
         }
         if (data.transplant) {
-          const { text, totalWeeks } = adjustWeeks(data.transplant);
-          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${pluralCropName} into bed ${bed.id}, ${spacingInfo}`, totalWeeks });
+          const { text, totalWeeks, monthNum, weekNum } = adjustWeeks(data.transplant);
+          tasks.push({ 
+            text: `${text} Transplant ${plantsPerBed} ${pluralCropName} into bed ${bed.id}, ${spacingInfo}`, 
+            totalWeeks, 
+            summary: `Transplant ${plantsPerBed} ${pluralCropName}`, 
+            description: `Into bed ${bed.id}, ${spacingInfo}`, 
+            monthNum, 
+            weekNum 
+          });
         }
         if (data.sow) {
-          const { text, totalWeeks } = adjustWeeks(data.sow);
-          tasks.push({ text: `${text} Sow ${plantsPerBed} ${pluralCropName} for bed ${bed.id}, ${spacingInfo}`, totalWeeks });
+          const { text, totalWeeks, monthNum, weekNum } = adjustWeeks(data.sow);
+          tasks.push({ 
+            text: `${text} Sow ${plantsPerBed} ${pluralCropName} for bed ${bed.id}, ${spacingInfo}`, 
+            totalWeeks, 
+            summary: `Sow ${plantsPerBed} ${pluralCropName}`, 
+            description: `For bed ${bed.id}, ${spacingInfo}`, 
+            monthNum, 
+            weekNum 
+          });
         }
         if (data.harvest) {
-          const { text, totalWeeks } = adjustWeeks(data.harvest);
-          tasks.push({ text: `${text} Harvest your ${pluralCropName} from bed ${bed.id}`, totalWeeks });
+          const { text, totalWeeks, monthNum, weekNum } = adjustWeeks(data.harvest);
+          tasks.push({ 
+            text: `${text} Harvest your ${pluralCropName} from bed ${bed.id}`, 
+            totalWeeks, 
+            summary: `Harvest ${plantsPerBed} ${pluralCropName}`, 
+            description: `From bed ${bed.id}`, 
+            monthNum, 
+            weekNum 
+          });
         }
       }
     });
@@ -344,9 +371,46 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     console.log('Generated tasks (sorted):', tasks);
     document.getElementById('taskList').innerHTML = `<h2>${translations[currentLanguage].tasks || 'Tasks:'}</h2><ul>` +
       tasks.map(task => `<li>${task.text}</li>`).join('') + '</ul>';
+
+    generateICS(tasks);
   } catch (error) {
     console.error('Error in form submission:', error);
     alert(error.message);
     document.getElementById('taskList').innerHTML = '';
   }
 });
+
+function generateICS(tasks) {
+  console.log('Generating ICS file...');
+  try {
+    const monthToNum = {
+      'January': '01', 'February': '02', 'March': '03', 'April': '04', 'May': '05', 'June': '06',
+      'July': '07', 'August': '08', 'September': '09', 'October': '10', 'November': '11', 'December': '12'
+    };
+
+    const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const year = new Date().getFullYear();
+
+    const events = tasks.map((task, i) => {
+      const day = String((task.weekNum - 1) * 7 + 1).padStart(2, '0');
+      const eventDate = `${year}${monthToNum[months[task.monthNum - 1]]}${day}`;
+      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${task.summary}\r\nDESCRIPTION:${task.description}\r\nDTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
+    });
+
+    const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//xAI//GardenPlanner//EN\r\nCALSCALE:GREGORIAN\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`;
+
+    console.log('ICS content:', icsContent);
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.getElementById('downloadLink');
+    if (!link) throw new Error('downloadLink element not found!');
+    link.href = url;
+    link.download = 'garden_calendar.ics';
+    link.style.display = 'block';
+    link.textContent = translations[currentLanguage].downloadCalendar || 'Download Calendar';
+    console.log('Download link set:', link.href);
+  } catch (error) {
+    console.error('Error in generateICS:', error);
+    alert('Failed to generate calendar: ' + error.message);
+  }
+}
