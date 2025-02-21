@@ -265,7 +265,8 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     console.log('Zone:', zone, 'Unit:', unit);
 
     const unitToSqFt = { 'ft': 1, 'in': 1 / 144, 'cm': 1 / 929.03, 'm': 10.7639 };
-    const sqFtToUnit = { 'ft': 1, 'in': 144, 'cm': 929.03, 'm': 0.092903 };
+    const sqFtToInches = 144; // For imperial conversion
+    const sqFtToCm = 929.03;  // For metric conversion
 
     const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
       const name = bed.querySelector('input[name="bedName"]').value;
@@ -299,11 +300,13 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const shift = zoneShift[zone];
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
 
-        const spacingInUnit = (data.spacing * sqFtToUnit[unit]).toFixed(2);
+        const isImperial = (unit === 'ft' || unit === 'in');
+        const spacingUnit = isImperial ? 'in' : 'cm';
+        const conversionFactor = isImperial ? sqFtToInches : sqFtToCm;
         const baseSpacing = Math.sqrt(data.spacing);
-        const plantSpacing = (baseSpacing * 12 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-        const rowSpacing = (baseSpacing * 18 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
-        const spacingInfo = `Row Spacing - ${rowSpacing} ${unit} between rows, ${plantSpacing} ${unit} between plants`;
+        const plantSpacing = (baseSpacing * 12 * Math.sqrt(conversionFactor / 144)).toFixed(1);
+        const rowSpacing = (baseSpacing * 18 * Math.sqrt(conversionFactor / 144)).toFixed(1);
+        const spacingInfo = `Row Spacing - ${rowSpacing} ${spacingUnit} between rows, ${plantSpacing} ${spacingUnit} between plants`;
 
         const adjustWeeks = (taskData) => {
           let { week, month } = taskData;
