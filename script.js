@@ -265,13 +265,13 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     console.log('Zone:', zone, 'Unit:', unit);
 
     const unitToSqFt = { 'ft': 1, 'in': 1 / 144, 'cm': 1 / 929.03, 'm': 10.7639 };
+    const sqFtToUnit = { 'ft': 1, 'in': 144, 'cm': 929.03, 'm': 0.092903 };
 
     const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
       const name = bed.querySelector('input[name="bedName"]').value;
       const length = parseFloat(bed.querySelector('input[name="length"]').value);
       const width = parseFloat(bed.querySelector('input[name="width"]').value);
       
-      // Validation: Check for positive dimensions
       if (isNaN(length) || length <= 0 || isNaN(width) || width <= 0) {
         throw new Error(`Invalid dimensions for bed "${name || `Bed ${index + 1}`}": Length and width must be positive numbers.`);
       }
@@ -299,6 +299,12 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         const shift = zoneShift[zone];
         const cropName = cropTranslations[currentLanguage][bed.crop].toLowerCase();
 
+        const spacingInUnit = (data.spacing * sqFtToUnit[unit]).toFixed(2);
+        const baseSpacing = Math.sqrt(data.spacing);
+        const plantSpacing = (baseSpacing * 12 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
+        const rowSpacing = (baseSpacing * 18 * Math.sqrt(sqFtToUnit[unit] / 144)).toFixed(1);
+        const spacingInfo = `Row Spacing - ${rowSpacing} ${unit} between rows, ${plantSpacing} ${unit} between plants`;
+
         const adjustWeeks = (taskData) => {
           let { week, month } = taskData;
           let totalWeeks = (new Date(`${month} 1, ${new Date().getFullYear()}`).getMonth() * 4) + week + shift;
@@ -315,11 +321,11 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         }
         if (data.transplant) {
           const { text, totalWeeks } = adjustWeeks(data.transplant);
-          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${cropName}s into bed ${bed.id}`, totalWeeks });
+          tasks.push({ text: `${text} Transplant ${plantsPerBed} ${cropName}s into bed ${bed.id}, ${spacingInfo}`, totalWeeks });
         }
         if (data.sow) {
           const { text, totalWeeks } = adjustWeeks(data.sow);
-          tasks.push({ text: `${text} Sow ${plantsPerBed} ${cropName}s for bed ${bed.id}`, totalWeeks });
+          tasks.push({ text: `${text} Sow ${plantsPerBed} ${cropName}s for bed ${bed.id}, ${spacingInfo}`, totalWeeks });
         }
         if (data.harvest) {
           const { text, totalWeeks } = adjustWeeks(data.harvest);
@@ -328,7 +334,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       }
     });
 
-    // Sort tasks chronologically by totalWeeks
     tasks.sort((a, b) => a.totalWeeks - b.totalWeeks);
 
     console.log('Generated tasks (sorted):', tasks);
@@ -336,7 +341,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       tasks.map(task => `<li>${task.text}</li>`).join('') + '</ul>';
   } catch (error) {
     console.error('Error in form submission:', error);
-    alert(error.message); // Show the error to the user
-    document.getElementById('taskList').innerHTML = ''; // Clear tasks on error
+    alert(error.message);
+    document.getElementById('taskList').innerHTML = '';
   }
 });
