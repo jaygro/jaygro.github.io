@@ -256,29 +256,19 @@ function addBed() {
     console.error('Error in addBed:', error);
   }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded, initializing...');
-  try {
-    updateUnitLabels();
-    populateCropDropdowns();
+  updateUnitLabels();
+  populateCropDropdowns();
+  updateTranslations();
+  document.getElementById('addBedButton').addEventListener('click', addBed);
+  document.getElementById('language').addEventListener('change', () => {
+    currentLanguage = document.getElementById('language').value;
     updateTranslations();
-    const addBedButton = document.getElementById('addBedButton');
-    if (addBedButton) {
-      console.log('Add Bed button found, attaching listener');
-      addBedButton.addEventListener('click', () => addBed());
-    }
-    const languageSelect = document.getElementById('language');
-    if (languageSelect) {
-      console.log('Language select found, attaching listener');
-      languageSelect.addEventListener('change', () => {
-        currentLanguage = languageSelect.value;
-        updateTranslations();
-        populateCropDropdowns();
-      });
-    }
-  } catch (error) {
-    console.error('Error during initialization:', error);
-  }
+    populateCropDropdowns();
+  });
+  document.getElementById('unit').addEventListener('change', updateUnitLabels);
 });
 
 document.getElementById('gardenForm').addEventListener('submit', function(e) {
