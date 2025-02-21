@@ -391,7 +391,6 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
 
     console.log('Generated tasks (sorted):', tasks);
 
-    // Open new window for task list
     const taskWindow = window.open('', '_blank', 'width=600,height=800');
     taskWindow.document.write(`
       <html>
@@ -405,8 +404,11 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
             ul.task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
             ul.task-checklist li label { flex: 1; color: #333; }
             ul.task-checklist li input[type="checkbox"]:checked + label { text-decoration: line-through; color: #888; }
+            a.download-link { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
+            a.download-link:hover { color: #388e3c; text-decoration: underline; }
             @media print {
               body { padding: 10px; }
+              a.download-link { display: none; }
               ul.task-checklist li { background: none; page-break-inside: avoid; }
               ul.task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
             }
@@ -422,12 +424,19 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
               </li>
             `).join('')}
           </ul>
+          <a class="download-link" id="downloadLink">${translations[currentLanguage].downloadCalendar || 'Download Calendar'}</a>
+          <script>
+            const icsContent = generateICS(${JSON.stringify(tasks)});
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            link.href = url;
+            link.download = 'garden_calendar.ics';
+          </script>
         </body>
       </html>
     `);
     taskWindow.document.close();
-
-    generateICS(tasks);
   } catch (error) {
     console.error('Error in form submission:', error);
     alert(error.message);
