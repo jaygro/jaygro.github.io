@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { plantData } from './plantData.js';
 
 let bedCount = 1;
@@ -255,7 +254,6 @@ function generateICS(tasks, zone) {
     console.error('Error in generateICS:', error);
   }
 }
-=======
 import { plantData } from './plantData.js';
 
 const translations = {
