@@ -255,3 +255,79 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Error during initialization:', error);
   }
 });
+
+document.getElementById('gardenForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  console.log('Form submitted, processing...');
+  try {
+    const zone = document.getElementById('zone').value;
+    const unit = document.getElementById('unit').value;
+    console.log('Zone:', zone, 'Unit:', unit);
+
+    const unitToSqFt = { 'ft': 1, 'in': 1 / 144, 'cm': 1 / 929.03, 'm': 10.7639 };
+
+    const beds = Array.from(document.querySelectorAll('.bed')).map((bed, index) => {
+      const name = bed.querySelector('input[name="bedName"]').value;
+      const length = parseFloat(bed.querySelector('input[name="length"]').value);
+      const width = parseFloat(bed.querySelector('input[name="width"]').value);
+      const area = (length * width) * unitToSqFt[unit];
+      const crop = bed.querySelector('select[name="crop"]').value;
+      console.log(`Bed ${index + 1}:`, { name, length, width, area, crop });
+      return { id: name || `Bed ${index + 1}`, length, width, area, crop: crop || null };
+    });
+
+    const zoneShift = {
+      '1a': 8, '1b': 7, '2a': 6, '2b': 6, '3a': 5, '3b': 5, '4a': 4, '4b': 4,
+      '5a': 3, '5b': 3, '6a': 2, '6b': 2, '7a': 0, '7b': 0, '8a': -1, '8b': -1,
+      '9a': -2, '9b': -2, '10a': -3, '10b': -3, '11a': -4, '11b': -4, '12a': -5, '12b': -5,
+      '13a': -6, '13b': -6
+    };
+
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    let tasks = [];
+    beds.forEach(bed => {
+      if (bed.crop && plantData[bed.crop]) {
+        const data = plantData[bed.crop];
+        const plantsPerBed = Math.floor(bed.area / data.spacing);
+        const shift = zoneShift[zone];
+
+        const adjustWeeks = (taskData) => {
+          let { week, month } = taskData;
+          let totalWeeks = (new Date(`${month} 1, ${new Date().getFullYear()}`).getMonth() * 4) + week + shift;
+          while (totalWeeks < 1) totalWeeks += 48;
+          while (totalWeeks > 48) totalWeeks -= 48;
+          const newMonthNum = Math.floor((totalWeeks - 1) / 4);
+          const newWeek = totalWeeks - (newMonthNum * 4);
+          return { text: `Week ${newWeek} of ${months[newMonthNum]}`, totalWeeks };
+        };
+
+        if (data.startIndoors) {
+          const { text, totalWeeks } = adjustWeeks(data.startIndoors);
+          tasks.push({ text: `${bed.id} - Start ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]} indoors: ${text}`, totalWeeks });
+        }
+        if (data.transplant) {
+          const { text, totalWeeks } = adjustWeeks(data.transplant);
+          tasks.push({ text: `${bed.id} - Transplant ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+        }
+        if (data.sow) {
+          const { text, totalWeeks } = adjustWeeks(data.sow);
+          tasks.push({ text: `${bed.id} - Sow ${plantsPerBed} ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+        }
+        if (data.harvest) {
+          const { text, totalWeeks } = adjustWeeks(data.harvest);
+          tasks.push({ text: `${bed.id} - Harvest ${cropTranslations[currentLanguage][bed.crop]}: ${text}`, totalWeeks });
+        }
+      }
+    });
+
+    // Sort tasks chronologically by totalWeeks
+    tasks.sort((a, b) => a.totalWeeks - b.totalWeeks);
+
+    console.log('Generated tasks (sorted):', tasks);
+    document.getElementById('taskList').innerHTML = `<h2>${translations[currentLanguage].tasks || 'Tasks:'}</h2><ul>` +
+      tasks.map(task => `<li>${task.text}</li>`).join('') + '</ul>';
+  } catch (error) {
+    console.error('Error in form submission:', error);
+  }
+});
