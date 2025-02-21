@@ -270,6 +270,12 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       const name = bed.querySelector('input[name="bedName"]').value;
       const length = parseFloat(bed.querySelector('input[name="length"]').value);
       const width = parseFloat(bed.querySelector('input[name="width"]').value);
+      
+      // Validation: Check for positive dimensions
+      if (isNaN(length) || length <= 0 || isNaN(width) || width <= 0) {
+        throw new Error(`Invalid dimensions for bed "${name || `Bed ${index + 1}`}": Length and width must be positive numbers.`);
+      }
+
       const area = (length * width) * unitToSqFt[unit];
       const crop = bed.querySelector('select[name="crop"]').value;
       console.log(`Bed ${index + 1}:`, { name, length, width, area, crop });
@@ -330,5 +336,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       tasks.map(task => `<li>${task.text}</li>`).join('') + '</ul>';
   } catch (error) {
     console.error('Error in form submission:', error);
+    alert(error.message); // Show the error to the user
+    document.getElementById('taskList').innerHTML = ''; // Clear tasks on error
   }
 });
