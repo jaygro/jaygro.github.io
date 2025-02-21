@@ -467,8 +467,8 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
               const link = document.getElementById('downloadLink');
               link.href = url;
               link.download = 'garden_calendar.ics';
-              link.dispatchEvent(new Event('click'));
             }
+
             const tasks = ${JSON.stringify(tasks)};
             document.getElementById('downloadLink').addEventListener('click', function(e) {
               e.preventDefault();
