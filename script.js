@@ -385,6 +385,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
     document.getElementById('taskList').innerHTML = '';
   }
 });
+
 function generateICS(tasks) {
   console.log('Generating ICS file...');
   try {
@@ -397,16 +398,23 @@ function generateICS(tasks) {
     const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const year = new Date().getFullYear();
 
-    const foldLine = (line) => {
-      if (line.length <= 75) return line;
-      const folded = [];
+    const foldLine = (line, prefix = '') => {
+      const maxLength = 74; // Leave room for prefix + colon + space
+      let result = [];
       let current = line;
-      while (current.length > 75) {
-        folded.push(current.substring(0, 75));
-        current = ' ' + current.substring(75);
+      let firstLine = true;
+      while (current.length > 0) {
+        if (firstLine) {
+          const chunkLength = maxLength - prefix.length;
+          result.push(prefix + current.substring(0, chunkLength));
+          current = current.substring(chunkLength);
+          firstLine = false;
+        } else {
+          result.push(' ' + current.substring(0, maxLength));
+          current = current.substring(maxLength);
+        }
       }
-      folded.push(current);
-      return folded.join('\r\n');
+      return result.join('\r\n');
     };
 
     const events = tasks.map((task, i) => {
@@ -414,10 +422,26 @@ function generateICS(tasks) {
       const endDay = String((task.weekNum - 1) * 7 + 7).padStart(2, '0');
       const startDate = `${year}${monthToNum[months[task.monthNum - 1]]}${startDay}`;
       const endDate = `${year}${monthToNum[months[task.monthNum - 1]]}${endDay}`;
-      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${foldLine(task.summary)}\r\nDESCRIPTION:${foldLine(task.description)}\r\nDTSTART;VALUE=DATE:${startDate}\r\nDTEND;VALUE=DATE:${endDate}\r\nEND:VEVENT`;
+      return [
+        'BEGIN:VEVENT',
+        `UID:${Date.now()}-${i}@gardenplanner`,
+        `DTSTAMP:${now}`,
+        foldLine(task.summary, 'SUMMARY:'),
+        foldLine(task.description, 'DESCRIPTION:'),
+        `DTSTART;VALUE=DATE:${startDate}`,
+        `DTEND;VALUE=DATE:${endDate}`,
+        'END:VEVENT'
+      ].join('\r\n');
     });
 
-    const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//xAI//GardenPlanner//EN\r\nCALSCALE:GREGORIAN\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`;
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//xAI//GardenPlanner//EN',
+      'CALSCALE:GREGORIAN',
+      events.join('\r\n'),
+      'END:VCALENDAR'
+    ].join('\r\n');
 
     console.log('ICS content:', icsContent);
     const blob = new Blob([icsContent], { type: 'text/calendar' });
