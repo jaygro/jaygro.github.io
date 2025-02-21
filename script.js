@@ -392,10 +392,23 @@ function generateICS(tasks) {
     const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const year = new Date().getFullYear();
 
+    // Function to fold lines longer than 75 characters
+    const foldLine = (line) => {
+      if (line.length <= 75) return line;
+      const folded = [];
+      let current = line;
+      while (current.length > 75) {
+        folded.push(current.substring(0, 75));
+        current = ' ' + current.substring(75); // Add space for continuation
+      }
+      folded.push(current);
+      return folded.join('\r\n');
+    };
+
     const events = tasks.map((task, i) => {
       const day = String((task.weekNum - 1) * 7 + 1).padStart(2, '0');
       const eventDate = `${year}${monthToNum[months[task.monthNum - 1]]}${day}`;
-      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${task.summary}\r\nDESCRIPTION:${task.description}\r\nDTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
+      return `BEGIN:VEVENT\r\nUID:${Date.now()}-${i}@gardenplanner\r\nDTSTAMP:${now}\r\nSUMMARY:${foldLine(task.summary)}\r\nDESCRIPTION:${foldLine(task.description)}\r\nDTSTART;VALUE=DATE:${eventDate}\r\nDTEND;VALUE=DATE:${eventDate}\r\nEND:VEVENT`;
     });
 
     const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//xAI//GardenPlanner//EN\r\nCALSCALE:GREGORIAN\r\n${events.join('\r\n')}\r\nEND:VCALENDAR\r\n`;
