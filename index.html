@@ -94,17 +94,12 @@
     color: #388e3c;
     text-decoration: underline;
   }
-  @media (max-width: 600px) {
-    form, #taskList {
-      padding: 10px;
-    }
-    input[type="text"], input[type="number"], select {
-      width: 100%;
-    }
-    button {
-      width: 100%;
-      margin-bottom: 10px;
-    }
+
+@media (max-width: 600px) {
+  body { padding: 10px; font-size: 16px; }
+  input, select { width: 100%; padding: 12px; font-size: 16px; }
+  button { width: 100%; padding: 12px; font-size: 16px; }
+}
   }
 .task-header {
   color: #2e7d32;
