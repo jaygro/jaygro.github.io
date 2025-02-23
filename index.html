@@ -10,7 +10,6 @@ body {
   color: #333;
   margin: 0;
   padding: 20px;
-  font-size: 16px; /* Desktop default */
 }
 h1 { color: #2e7d32; text-align: center; }
 h3 { color: #4caf50; }
@@ -38,33 +37,33 @@ button:hover { background-color: #388e3c; }
   .task-checklist li { background: none; page-break-inside: avoid; }
   .task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
 }
-@media (max-width: 600px) {
-  body { padding: 15px; font-size: 48px !important; }
+@media (max-width: 767px) {
+  body { font-size: 48px !important; padding: 15px !important; }
   h1 { font-size: 60px !important; }
   h3 { font-size: 54px !important; }
-  label { font-size: 48px !important; margin-bottom: 15px; }
-  input[type="text"], select { width: 100%; padding: 20px; font-size: 48px !important; margin-bottom: 25px; }
+  label { font-size: 48px !important; margin-bottom: 15px !important; }
+  input[type="text"], select { width: 100% !important; padding: 20px !important; font-size: 48px !important; margin-bottom: 25px !important; }
+  .bed { padding: 15px !important; margin-bottom: 30px !important; width: 100% !important; box-sizing: border-box !important; }
   .dimensions-row { 
-    display: flex !important; 
-    width: 100% !important; 
+    display: inline-flex !important; 
+    flex-direction: row !important; 
     flex-wrap: nowrap !important; 
-    gap: 10px; /* Space between */
+    width: 100% !important; 
+    gap: 10px !important; 
+    align-items: center !important; 
   }
   input[type="number"] { 
     width: 45% !important; 
     padding: 10px !important; 
     font-size: 48px !important; 
     margin: 0 !important; 
-    border: 1px solid #81c784; 
+    box-sizing: border-box !important; 
+    display: inline-block !important; 
   }
   .dimensions-row span { 
     font-size: 48px !important; 
-    padding: 0 !important; 
-    line-height: 1; 
-  }
-  button { width: 100%; padding: 20px 30px; font-size: 48px !important; margin-bottom: 25px; }
-  .bed { padding: 15px; margin-bottom: 30px; }
-}
+    padding: 0 5px !important; 
+    line-height: 1 !
 </style>
 </head>
 <body>
