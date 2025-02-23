@@ -226,8 +226,12 @@ function addBed() {
       </div>
       <input type="text" name="bedName" placeholder="e.g., Backyard Bed ${bedCount}" required><br>
       <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">${unit}</span>):</label><br>
-      <input type="number" name="length" placeholder="Length" required> x 
-      <input type="number" name="width" placeholder="Width" required><br>
+      <div class="dimensions-row">
+        <input type="number" name="length" placeholder="Length" required>
+        <span>x</span>
+        <input type="number" name="width" placeholder="Width" required>
+      </div><br>
+     
       <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
       <select name="crop" class="crop-select"></select><br>
     `;
