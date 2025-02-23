@@ -94,29 +94,7 @@
     color: #388e3c;
     text-decoration: underline;
   }
-@media (max-width: 600px) {
-  body { padding: 15px; font-size: 48px; background-color: #8c8c5c; }
-  h1 { font-size: 60px; }
-  h3 { font-size: 54px; }
-  input[type="text"], input[type="number"], select { 
-    width: 100%; 
-    padding: 20px; 
-    font-size: 48px; 
-    margin-bottom: 25px; 
-    box-sizing: border-box; 
-  }
-  input[type="number"] { width: 120px; }
-  button { 
-    width: 100%; 
-    padding: 20px 30px; 
-    font-size: 48px; 
-    margin-bottom: 25px; 
-  }
-  .bed { padding: 15px; margin-bottom: 30px; }
-  label { font-size: 48px; margin-bottom: 15px; }
-  .remove-bed { font-size: 54px; padding: 0 15px; }
-  .add-cycle { font-size: 42px; padding: 15px; }
-}
+
 .task-header {
   color: #2e7d32;
   margin: 0 0 15px 0;
@@ -173,7 +151,26 @@
     background: white;
   }
 }
-
+body { 
+  padding: 15px; 
+  font-size: 48px; /* Force big text everywhere */
+  background-color: #8c8c5c; 
+}
+input[type="text"], input[type="number"], select { 
+  width: 100%; 
+  padding: 20px; 
+  font-size: 48px; 
+  margin-bottom: 25px; 
+  box-sizing: border-box; 
+}
+input[type="number"] { width: 120px; }
+button { 
+  width: 100%; 
+  padding: 20px 30px; 
+  font-size: 48px; 
+  margin-bottom: 25px; 
+}
+label { font-size: 48px; margin-bottom: 15px; }
 </style>
 </head>
 <body>
