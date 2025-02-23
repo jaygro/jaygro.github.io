@@ -224,20 +224,26 @@ function addBed() {
         <label data-translate="bedName">${translations[currentLanguage].bedName}</label>
         <button type="button" class="remove-bed" style="color: red; border: none; background: none; cursor: pointer; font-size: 16px;">X</button>
       </div>
-      <input type="text" name="bedName" placeholder="e.g., Backyard Bed ${bedCount}" required><br>
-      <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">${unit}</span>):</label><br>
-      <div class="dimensions-row">
-        <input type="number" name="length" placeholder="Length" required>
-        <span>x</span>
-        <input type="number" name="width" placeholder="Width" required>
+      <input type="text" name="bedName" placeholder="e.g., Backyard Bed ${bedCount}" required style="font-size: 24px;"><br>
+      <label data-translate="dimensions" style="font-size: 24px;">${translations[currentLanguage].dimensions} (<span class="unit-label" style="font-size: 24px;">${unit}</span>):</label><br>
+      <div class="dimensions-row" style="display: inline-flex; flex-direction: row; flex-wrap: nowrap; width: 100%; gap: 10px; font-size: 24px;">
+        <input type="number" name="length" placeholder="Length" required style="width: 45%; padding: 10px; font-size: 24px; margin: 0;">
+        <span style="font-size: 24px; padding: 0 5px;">x</span>
+        <input type="number" name="width" placeholder="Width" required style="width: 45%; padding: 10px; font-size: 24px; margin: 0;">
       </div><br>
-     
-      <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
-      <select name="crop" class="crop-select"></select><br>
+      <div class="crop-cycle">
+        <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
+        <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
+        <label>Season:</label><br>
+        <select name="season" style="font-size: 24px;">
+          <option value="spring">Spring</option>
+          <option value="fall">Fall</option>
+        </select><br>
+      </div>
+      <button type="button" class="add-cycle" style="font-size: 24px;">Add Another Crop Cycle</button>
     `;
     container.appendChild(newBed);
     
-    // Populate only the new bed's dropdown
     const newDropdown = newBed.querySelector('.crop-select');
     const crops = Object.keys(plantData).sort();
     const defaultOption = `<option value="">${translations[currentLanguage].crop}</option>`;
@@ -247,12 +253,28 @@ function addBed() {
     }).join('');
     newDropdown.innerHTML = options;
 
-    // Add remove functionality
     const removeButton = newBed.querySelector('.remove-bed');
     removeButton.addEventListener('click', () => {
       console.log(`Removing bed: ${bedCount}`);
       container.removeChild(newBed);
-      bedCount--; // Decrement bed count
+      bedCount--;
+    });
+
+    const addCycleButton = newBed.querySelector('.add-cycle');
+    addCycleButton.addEventListener('click', () => {
+      const cycleDiv = document.createElement('div');
+      cycleDiv.className = 'crop-cycle';
+      cycleDiv.innerHTML = `
+        <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
+        <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
+        <label>Season:</label><br>
+        <select name="season" style="font-size: 24px;">
+          <option value="spring">Spring</option>
+          <option value="fall">Fall</option>
+        </select><br>
+      `;
+      newBed.insertBefore(cycleDiv, addCycleButton);
+      cycleDiv.querySelector('.crop-select').innerHTML = options;
     });
     
     console.log('New bed added with dropdown populated');
