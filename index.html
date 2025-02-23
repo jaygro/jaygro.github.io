@@ -2,81 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Garden Planner</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #103d09;
-  color: #333;
-  margin: 0;
-  padding: 20px;
-}
-h1 { color: #2e7d32; text-align: center; }
-h3 { color: #4caf50; }
-form { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.bed { margin-bottom: 20px; border: 1px solid #a5d6a7; padding: 15px; background: #f1f8e9; border-radius: 5px; }
-label { display: block; margin-bottom: 5px; font-weight: bold; color: #388e3c; }
-input[type="text"], input[type="number"], select { width: calc(100% - 20px); padding: 8px; margin-bottom: 10px; border: 1px solid #81c784; border-radius: 4px; box-sizing: border-box; }
-button { background-color: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
-button:hover { background-color: #388e3c; }
-#taskList { max-width: 800px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-#taskList h2 { color: #2e7d32; margin-top: 0; }
-#taskList ul { list-style-type: none; padding: 0; }
-#taskList li { padding: 8px 0; border-bottom: 1px solid #e8f5e9; }
-#downloadLink { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
-#downloadLink:hover { color: #388e3c; text-decoration: underline; }
-.task-header { color: #2e7d32; margin: 0 0 15px 0; border-bottom: 2px solid #4caf50; padding-bottom: 5px; }
-.task-checklist { list-style-type: none; padding: 0; }
-.task-checklist li { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e8f5e9; background: #f1f8e9; margin-bottom: 5px; border-radius: 4px; }
-.task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
-.task-checklist li label { flex: 1; color: #333; font-weight: normal; }
-@media print {
-  body { background: none; padding: 0; }
-  form, #downloadLink { display: none; }
-  #taskList { box-shadow: none; border: none; margin: 0; padding: 10px; }
-  .task-checklist li { background: none; page-break-inside: avoid; }
-  .task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
-}
-@media (max-width: 767px) {
-  body { font-size: 48px !important; padding: 15px !important; }
-  h1 { font-size: 60px !important; }
-  h3 { font-size: 54px !important; }
-  label { font-size: 48px !important; margin-bottom: 15px !important; }
-  input[type="text"], select { width: 100% !important; padding: 20px !important; font-size: 48px !important; margin-bottom: 25px !important; }
-  .bed { padding: 15px !important; margin-bottom: 30px !important; width: 100% !important; box-sizing: border-box !important; }
-  .dimensions-row { 
-    display: inline-flex !important; 
-    flex-direction: row !important; 
-    flex-wrap: nowrap !important; 
-    width: 100% !important; 
-    gap: 10px !important; 
-    align-items: center !important; 
-  }
-  input[type="number"] { 
-    width: 45% !important; 
-    padding: 10px !important; 
-    font-size: 48px !important; 
-    margin: 0 !important; 
-    box-sizing: border-box !important; 
-    display: inline-block !important; 
-  }
-  .dimensions-row span { 
-    font-size: 48px !important; 
-    padding: 0 5px !important; 
-    line-height: 1 !
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #8c8c5c;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { color: #2e7d32; text-align: center; }
+    h3 { color: #4caf50; }
+    form { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .bed { margin-bottom: 20px; border: 1px solid #a5d6a7; padding: 15px; background: #f1f8e9; border-radius: 5px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #388e3c; }
+    input[type="text"], input[type="number"], select { width: calc(100% - 20px); padding: 8px; margin-bottom: 10px; border: 1px solid #81c784; border-radius: 4px; box-sizing: border-box; }
+    button { background-color: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+    button:hover { background-color: #388e3c; }
+    #taskList { max-width: 800px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #taskList h2 { color: #2e7d32; margin-top: 0; }
+    #taskList ul { list-style-type: none; padding: 0; }
+    #taskList li { padding: 8px 0; border-bottom: 1px solid #e8f5e9; }
+    #downloadLink { display: block; text-align: center; margin-top: 20px; color: #4caf50; text-decoration: none; }
+    #downloadLink:hover { color: #388e3c; text-decoration: underline; }
+    .task-header { color: #2e7d32; margin: 0 0 15px 0; border-bottom: 2px solid #4caf50; padding-bottom: 5px; }
+    .task-checklist { list-style-type: none; padding: 0; }
+    .task-checklist li { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e8f5e9; background: #f1f8e9; margin-bottom: 5px; border-radius: 4px; }
+    .task-checklist li input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; accent-color: #4caf50; }
+    .task-checklist li label { flex: 1; color: #333; font-weight: normal; }
+    @media print {
+      body { background: none; padding: 0; }
+      form, #downloadLink { display: none; }
+      #taskList { box-shadow: none; border: none; margin: 0; padding: 10px; }
+      .task-checklist li { background: none; page-break-inside: avoid; }
+      .task-checklist li input[type="checkbox"] { -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2px solid #4caf50; background: white; }
+    }
+  </style>
 </head>
 <body>
   <h1 data-translate="title">Garden Planner</h1>
   <form id="gardenForm">
     <label data-translate="language">Language:</label><br>
-    <select id="language">
+    <select id="language" style="font-size: 24px;">
       <option value="en">English</option>
       <option value="es">Spanish</option>
     </select><br><br>
 
     <label data-translate="growingZone">Growing Zone:</label><br>
-    <select id="zone" required>
+    <select id="zone" required style="font-size: 24px;">
       <option value="">Select Zone</option>
       <option value="1a">1a</option><option value="1b">1b</option>
       <option value="2a">2a</option><option value="2b">2b</option>
@@ -94,7 +68,7 @@ button:hover { background-color: #388e3c; }
     </select><br><br>
 
     <label data-translate="measurementUnit">Measurement Unit:</label><br>
-    <select id="unit">
+    <select id="unit" style="font-size: 24px;">
       <option value="ft">Feet (ft)</option>
       <option value="in">Inches (in)</option>
       <option value="cm">Centimeters (cm)</option>
@@ -105,25 +79,21 @@ button:hover { background-color: #388e3c; }
     <div id="bedsContainer">
       <div class="bed">
         <label data-translate="bedName">Bed Name:</label><br>
-        <input type="text" name="bedName" placeholder="e.g., Front Yard" required><br>
-        <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">ft</span>):</label><br>
-    <div class="dimensions-row">
-  <input type="number" name="length" placeholder="Length" required>
-  <span>x</span>
-  <input type="number" name="width" placeholder="Width" required>
-</div><br>
-        
+        <input type="text" name="bedName" placeholder="e.g., Front Yard" required style="font-size: 24px;"><br>
+        <label data-translate="dimensions" style="font-size: 24px;">Dimensions (<span class="unit-label" style="font-size: 24px;">ft</span>):</label><br>
+        <div class="dimensions-row" style="display: inline-flex; flex-direction: row; flex-wrap: nowrap; width: 100%; gap: 10px; font-size: 24px;">
+          <input type="number" name="length" placeholder="Length" required style="width: 45%; padding: 10px; font-size: 24px; margin: 0;">
+          <span style="font-size: 24px; padding: 0 5px;">x</span>
+          <input type="number" name="width" placeholder="Width" required style="width: 45%; padding: 10px; font-size: 24px; margin: 0;">
+        </div><br>
         <label data-translate="crop">Crop:</label><br>
-        <select name="crop" class="crop-select"></select><br>
+        <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
       </div>
     </div>
-    <button type="button" id="addBedButton" data-translate="addBed">Add Another Bed</button><br><br>
-    <button type="submit" data-translate="planGarden">Plan My Garden</button>
+    <button type="button" id="addBedButton" data-translate="addBed" style="font-size: 24px;">Add Another Bed</button><br><br>
+    <button type="submit" data-translate="planGarden" style="font-size: 24px;">Plan My Garden</button>
   </form>
-
- 
-  <a id="downloadLink" style="display:none" data-translate="downloadCalendar">Download Calendar</a>
-
+  <a id="downloadLink" style="display:none; font-size: 24px;" data-translate="downloadCalendar">Download Calendar</a>
   <script type="module" src="script.js"></script>
 </body>
 </html>
