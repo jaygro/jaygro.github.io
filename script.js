@@ -209,7 +209,6 @@ function updateUnitLabels() {
     console.error('Error in updateUnitLabels:', error);
   }
 }
-
 function addBed() {
   console.log('Adding new bed...');
   try {
@@ -231,16 +230,8 @@ function addBed() {
         <span style="font-size: 24px; padding: 0 5px;">x</span>
         <input type="number" name="width" placeholder="Width" required style="width: 45%; padding: 10px; font-size: 24px; margin: 0;">
       </div><br>
-      <div class="crop-cycle">
-        <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
-        <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
-        <label>Season:</label><br>
-        <select name="season" style="font-size: 24px;">
-          <option value="spring">Spring</option>
-          <option value="fall">Fall</option>
-        </select><br>
-      </div>
-      <button type="button" class="add-cycle" style="font-size: 24px;">Add Another Crop Cycle</button>
+      <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
+      <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
     `;
     container.appendChild(newBed);
     
@@ -259,30 +250,12 @@ function addBed() {
       container.removeChild(newBed);
       bedCount--;
     });
-
-    const addCycleButton = newBed.querySelector('.add-cycle');
-    addCycleButton.addEventListener('click', () => {
-      const cycleDiv = document.createElement('div');
-      cycleDiv.className = 'crop-cycle';
-      cycleDiv.innerHTML = `
-        <label data-translate="crop">${translations[currentLanguage].crop}</label><br>
-        <select name="crop" class="crop-select" style="font-size: 24px;"></select><br>
-        <label>Season:</label><br>
-        <select name="season" style="font-size: 24px;">
-          <option value="spring">Spring</option>
-          <option value="fall">Fall</option>
-        </select><br>
-      `;
-      newBed.insertBefore(cycleDiv, addCycleButton);
-      cycleDiv.querySelector('.crop-select').innerHTML = options;
-    });
     
     console.log('New bed added with dropdown populated');
   } catch (error) {
     console.error('Error in addBed:', error);
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded, initializing...');
   updateUnitLabels();
