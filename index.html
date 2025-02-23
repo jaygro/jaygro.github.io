@@ -213,9 +213,13 @@ label { font-size: 48px; margin-bottom: 15px; }
       <div class="bed">
         <label data-translate="bedName">Bed Name:</label><br>
         <input type="text" name="bedName" placeholder="e.g., Front Yard" required><br>
-        <label data-translate="dimensions">Dimensions (<span class="unit-label">ft</span>):</label><br>
-        <input type="number" name="length" placeholder="Length" required> x 
-        <input type="number" name="width" placeholder="Width" required><br>
+        <label data-translate="dimensions">${translations[currentLanguage].dimensions} (<span class="unit-label">ft</span>):</label><br>
+    <div class="dimensions-row">
+  <input type="number" name="length" placeholder="Length" required>
+  <span>x</span>
+  <input type="number" name="width" placeholder="Width" required>
+</div><br>
+        
         <label data-translate="crop">Crop:</label><br>
         <select name="crop" class="crop-select"></select><br>
       </div>
