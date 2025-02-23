@@ -96,9 +96,24 @@ button:hover {
   h3 { font-size: 54px; }
   label { font-size: 48px; margin-bottom: 15px; }
   input[type="text"], select { width: 100%; padding: 20px; font-size: 48px; margin-bottom: 25px; }
-  .dimensions-row { display: flex; align-items: center; justify-content: space-between; }
-  input[type="number"] { width: 48%; padding: 20px; font-size: 48px; margin-bottom: 25px; }
-  .dimensions-row span { font-size: 48px; padding: 0 10px; }
+  .dimensions-row { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    width: 100%; 
+    flex-wrap: nowrap; /* Force single line */
+  }
+  input[type="number"] { 
+    width: 45%; /* Slightly less to fit "x" */
+    padding: 20px; 
+    font-size: 48px; 
+    margin: 0; /* No bottom margin here */
+  }
+  .dimensions-row span { 
+    font-size: 48px; 
+    padding: 0 10px; 
+    flex-shrink: 0; /* Keep "x" from shrinking */
+  }
   button { width: 100%; padding: 20px 30px; font-size: 48px; margin-bottom: 25px; }
   .bed { padding: 15px; margin-bottom: 30px; }
 }
