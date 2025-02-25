@@ -288,7 +288,7 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
       const width = parseFloat(bed.querySelector('input[name="width"]').value);
       
       if (isNaN(length) || length <= 0 || isNaN(width) || width <= 0) {
-        throw new Error(`Invalid dimensions for bed "${name || `Bed ${index + 1}`}": Length and width must be positive numbers.`);
+        throw new Error(`Invalid dimensions for bed, "${name || `Bed ${index + 1}`}": Length and width must be positive numbers.`);
       }
 
       const area = (length * width) * unitToSqFt[unit];
@@ -357,10 +357,10 @@ document.getElementById('gardenForm').addEventListener('submit', function(e) {
         if (data.sow) {
           const { text, totalWeeks, monthNum, weekNum } = adjustWeeks(data.sow);
           tasks.push({ 
-            text: `${text} Sow ${plantsPerBed} ${pluralCropName} for bed ${bed.id}, ${spacingInfo}`, 
+            text: `${text} Directly Sow ${plantsPerBed} ${pluralCropName} in bed, ${bed.id}, ${spacingInfo}`, 
             totalWeeks, 
-            summary: `Sow ${plantsPerBed} ${pluralCropName}`, 
-            description: `For bed ${bed.id}, ${spacingInfo}`, 
+            summary: `Direct Sow ${plantsPerBed} ${pluralCropName}`, 
+            description: `In bed, ${bed.id}, ${spacingInfo}`, 
             monthNum, 
             weekNum 
           });
